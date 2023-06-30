@@ -1,4 +1,6 @@
 import logging
+logging.basicConfig()
+
 import os
 from typing import Tuple
 
