@@ -4,11 +4,8 @@ from typing import Tuple
 
 from dotenv import load_dotenv
 from src.handlers import (
-    bash_handler,
-    clear_handler,
-    group_chat_handler,
+    test_handler,
     search_handler,
-    user_chat_handler,
 )
 from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import UnauthorizedError
@@ -42,14 +39,7 @@ async def bot() -> None:
         client.add_event_handler(search_handler)
 
         # Terminal bash feature
-        client.add_event_handler(bash_handler)
-
-        # Clear chat history feature
-        client.add_event_handler(clear_handler)
-
-        # User and group chat
-        client.add_event_handler(group_chat_handler)
-        client.add_event_handler(user_chat_handler)
+        client.add_event_handler(test_handler)
 
         print("Bot is running")
         await client.run_until_disconnected()
