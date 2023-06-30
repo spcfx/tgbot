@@ -3,6 +3,4 @@ telethon
 fastapi
 uvicorn
 python-dotenv
-duckduckgo-search
 unidecode
-tiktoken
