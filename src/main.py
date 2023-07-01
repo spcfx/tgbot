@@ -28,8 +28,8 @@ BOT_VERSION="0.0.1"
 async def bot() -> None:
     while True:
         try:
-            client = await TelegramClient(None, config.TELEGRAM_CORE_API_ID, config.TELEGRAM_CORE_API_HASH).start(
-                bot_token=config.TELEGRAM_BOT_TOKEN
+            client = await TelegramClient(None, Config.TELEGRAM_CORE_API_ID, Config.TELEGRAM_CORE_API_HASH).start(
+                bot_token=Config.TELEGRAM_BOT_TOKEN
             )
             logging.info("Successfully initiate bot")
         except UnauthorizedError:
