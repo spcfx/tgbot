@@ -36,6 +36,15 @@ async def bot() -> None:
                 bot_token=TELEGRAM_BOT_TOKEN
             )
             logging.info("Successfully initiate bot")
+
+        except UnauthorizedError:
+            logging.error(
+                "Unauthorized access. Please check your Telethon API ID, API hash"
+            )
+        except Exception as e:
+            logging.error(f"Error occurred: {e}")
+
+        finally:
             # Search feature
             client.add_event_handler(search_handler)
 
@@ -44,14 +53,6 @@ async def bot() -> None:
 
             print("Bot is running")
             await client.run_until_disconnected()
-        except UnauthorizedError:
-            logging.error(
-                "Unauthorized access. Please check your Telethon API ID, API hash"
-            )
-        except Exception as e:
-            logging.error(f"Error occurred: {e}")
-
-
 
 
 # API and app handling
