@@ -5,26 +5,48 @@ import subprocess
 from typing import Generator
 
 import uvicorn
-from __version__ import __version__
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
-from src.bot import bot
-from src.utils import (
-    BOT_NAME,
-    create_initial_folders,
-    initialize_logging,
-    terminal_html,
+
+import logging
+logging.basicConfig()
+
+import os
+from typing import Tuple
+
+from src.handlers import (
+    test_handler,
+    search_handler,
 )
+from telethon import TelegramClient
+from telethon.errors.rpcerrorlist import UnauthorizedError
+from config import Config
 
-# Initialize
-console_out = initialize_logging()
-create_initial_folders()
+BOT_NAME="grsbot"
+BOT_VERSION="0.0.1"
 
-# Bot version
-try:
-    BOT_VERSION = __version__
-except:
-    BOT_VERSION = "with unknown version"
+async def bot() -> None:
+    while True:
+        try:
+            client = await TelegramClient(None, config.TELEGRAM_CORE_API_ID, config.TELEGRAM_CORE_API_HASH).start(
+                bot_token=config.TELEGRAM_BOT_TOKEN
+            )
+            logging.info("Successfully initiate bot")
+        except UnauthorizedError:
+            logging.error(
+                "Unauthorized access. Please check your Telethon API ID, API hash"
+            )
+        except Exception as e:
+            logging.error(f"Error occurred: {e}")
+
+        # Search feature
+        client.add_event_handler(search_handler)
+
+        # Terminal bash feature
+        client.add_event_handler(test_handler)
+
+        print("Bot is running")
+        await client.run_until_disconnected()
 
 
 # API and app handling
@@ -53,36 +75,6 @@ def root() -> str:
 @app.get("/health")
 def health_check() -> str:
     return f"{BOT_NAME} {BOT_VERSION} is online"
-
-
-@app.get("/log")
-async def log_check() -> StreamingResponse:
-    async def generate_log() -> Generator[bytes, None, None]:
-        console_log = console_out.getvalue()
-        yield f"{console_log}".encode("utf-8")
-
-    return StreamingResponse(generate_log())
-
-
-@app.get("/terminal", response_class=HTMLResponse)
-async def terminal(request: Request) -> Response:
-    return Response(content=terminal_html(), media_type="text/html")
-
-
-@app.post("/terminal/run")
-async def run_command(command: dict) -> str:
-    try:
-        output_bytes = subprocess.check_output(
-            command["command"], shell=True, stderr=subprocess.STDOUT
-        )
-        output_str = output_bytes.decode("utf-8")
-        # Split output into lines and remove any leading/trailing whitespace
-        output_lines = [line.strip() for line in output_str.split("\n")]
-        # Join lines with a <br> tag for display in HTML
-        formatted_output = "<br>".join(output_lines)
-    except subprocess.CalledProcessError as e:
-        formatted_output = e.output.decode("utf-8")
-    return formatted_output
 
 
 # Minnion run
