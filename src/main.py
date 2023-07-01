@@ -20,7 +20,7 @@ from src.handlers import (
 )
 from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import UnauthorizedError
-from config import Config
+from .config import Config
 
 BOT_NAME="grsbot"
 BOT_VERSION="0.0.1"
