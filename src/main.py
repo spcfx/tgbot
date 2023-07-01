@@ -20,18 +20,30 @@ from src.handlers import (
 )
 from telethon import TelegramClient
 from telethon.errors.rpcerrorlist import UnauthorizedError
-from .config import Config
 
 BOT_NAME="grsbot"
 BOT_VERSION="0.0.1"
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+PORT = os.getenv("PORT", 5000)
+TELEGRAM_API = "https://api.telegram.org"
+TELEGRAM_CORE_API_HASH = os.getenv("TELEGRAM_CORE_API_HASH")
+TELEGRAM_CORE_API_ID = os.getenv("TELEGRAM_CORE_API_ID")
 
 async def bot() -> None:
     while True:
         try:
-            client = await TelegramClient(None, Config.TELEGRAM_CORE_API_ID, Config.TELEGRAM_CORE_API_HASH).start(
-                bot_token=Config.TELEGRAM_BOT_TOKEN
+            client = await TelegramClient(None, TELEGRAM_CORE_API_ID, TELEGRAM_CORE_API_HASH).start(
+                bot_token=TELEGRAM_BOT_TOKEN
             )
             logging.info("Successfully initiate bot")
+            # Search feature
+            client.add_event_handler(search_handler)
+
+            # Terminal bash feature
+            client.add_event_handler(test_handler)
+
+            print("Bot is running")
+            await client.run_until_disconnected()
         except UnauthorizedError:
             logging.error(
                 "Unauthorized access. Please check your Telethon API ID, API hash"
@@ -39,14 +51,7 @@ async def bot() -> None:
         except Exception as e:
             logging.error(f"Error occurred: {e}")
 
-        # Search feature
-        client.add_event_handler(search_handler)
 
-        # Terminal bash feature
-        client.add_event_handler(test_handler)
-
-        print("Bot is running")
-        await client.run_until_disconnected()
 
 
 # API and app handling
